@@ -55,20 +55,37 @@ def check_pagination(URL_KEYWORD, USER_AGENT):
         return True
 
 def menu():
-    URL_KEYWORD = input("Masukan Keyword: ")
-    PAGE_NUM_FROM = input("Masukan Nomor Hal Dari: ")
-    PAGE_NUM_TO = input("Masukan Nomor Hal Ke: ")
-    USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"
-    
+    USER_AGENT = ""
+    URL_KEYWORD = input("Enter Keyword: ")
+    PAGE_NUM_FROM = input("Enter Page Number From: ")
+    PAGE_NUM_TO = input("Enter Page Number To: ")
+
+    if not os.path.exists('user_agent.json'):
+        USER_AGENT = input("Enter User Agent: ") #"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"
+        json_user_agent = {
+            "user_agent": USER_AGENT 
+        }
+
+        with open('user_agent.json', 'w') as f:
+            json.dump(json_user_agent, f)
+    else:
+        try:
+            data = json.load(open('user_agent.json', encoding='utf-8'))
+            USER_AGENT = data['user_agent']
+        except ValueError:
+            print("User agent not found, Please remove file user_agent.json and try again")
+            return False
+
     if URL_KEYWORD == "" or USER_AGENT == "":
         print("Keyword / User agent not found")
         return False
+
     return {"URL_KEYWORD": URL_KEYWORD, "USER_AGENT":USER_AGENT, 'PAGE_NUM_FROM': PAGE_NUM_FROM, 'PAGE_NUM_TO': PAGE_NUM_TO}
 
 def progress(i, total):
     persen = (i*100/total)
     sys.stdout.write('\r')
-    sys.stdout.write("[%-1s] %d%% / %s" % ('#'*int(persen), persen, total))
+    sys.stdout.write("[%-1s] (%s/%s)" % ('#'*int(persen), i, total))
     sys.stdout.flush()
     time.sleep(0.25)
 
@@ -77,7 +94,7 @@ def scrapper_bl():
 
     url_config = []
     data_products = []
-    keyword = key['URL_KEYWORD'].upper()
+    # keyword = key['URL_KEYWORD'].upper()
     tot = 0
     is_pagination = check_pagination(key['URL_KEYWORD'], key["USER_AGENT"])
    
@@ -175,10 +192,17 @@ def scrapper_bl():
             writer.writerows(data_products)
     else:
         print('\nPlease try again\n')
-
-    print('\n Scrapping web finished \n')
     
-    os.system("clear")
-    os.system("python bl.py")
+    print('\n')
+    print('=========================================== \n')
+    print('Keyword: '+key["URL_KEYWORD"].upper()+'\n')
+    print('Total data: '+str(len(data_products))+'\n')
+    print('Scrapping web finished \n')
+    print('=========================================== \n')
+    
+    confirm = input('Scrapping again (Y/N): ')
+    if confirm.upper() == "Y":
+        os.system("clear")
+        os.system("python bl.py")
 
 scrapper_bl()
