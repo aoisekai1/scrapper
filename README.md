@@ -10,3 +10,5 @@ Scrapper web using beautifulsoup4 on python 3.8.10
 2. Input keyword
 3. Input page number from/to you want to get data
 4. And wait until it's finished
+
+# File export type csv
